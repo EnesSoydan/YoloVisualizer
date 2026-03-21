@@ -1,3 +1,30 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
+
+# Outputs
 outputs/
+
+# Environment
+.env
+.env.*
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+*.h5
+*.pkl
+
+# Virtual Environment
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

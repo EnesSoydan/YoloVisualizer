@@ -10,6 +10,7 @@ Kullanim:
     python visualize.py --filters          # Sadece filtreler
     python visualize.py --tsne             # Sadece t-SNE
     python visualize.py --image YOLO.jpg   # Belirli bir gorsel icin
+    python visualize.py --coach            # AI egitim kocu (interaktif)
 
 Ciktilar outputs/ klasorune kaydedilir.
 """
@@ -35,7 +36,26 @@ def main():
                         help="Konvolusyon filtre gorsellestiremesi")
     parser.add_argument("--tsne", action="store_true",
                         help="t-SNE embedding gorsellestiremesi")
+    parser.add_argument("--coach", action="store_true",
+                        help="AI egitim kocu - Claude API (ucretli)")
+    parser.add_argument("--coach-local", action="store_true",
+                        help="Yerel uzman sistem (ucretsiz, API gerektirmez)")
     args = parser.parse_args()
+
+    # Coach modlari ayri calisir
+    if args.coach:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import config
+        from core.ai_coach import run_coach
+        run_coach(config)
+        return
+
+    if args.coach_local:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import config
+        from core.expert_system import run_local_coach
+        run_local_coach(config)
+        return
 
     run_all = not any([
         args.feature_maps, args.gradcam, args.filters, args.tsne
