@@ -25,6 +25,15 @@ venv/
 .vscode/
 .idea/
 
+# Knowledge base vector store
+knowledge/chroma_db/
+
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code
+.claude/
+
+# Pipeline durum dosyasi
+knowledge/.pipeline_state.json

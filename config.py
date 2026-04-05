@@ -37,3 +37,12 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 IMGSZ = 640
 MAX_FEATURE_CHANNELS = 32
 TSNE_NUM_IMAGES = 300
+
+# Agent Ayarlari
+AGENT_MODEL = "mistral:7b-instruct-v0.3-q4_K_M"
+AGENT_OLLAMA_URL = "http://localhost:11434"
+AGENT_EMBEDDING_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
+AGENT_KB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "knowledge")
+AGENT_CHROMA_DIR = os.path.join(AGENT_KB_DIR, "chroma_db")
+AGENT_NUM_CTX = 8192
+AGENT_TEMPERATURE = 0.3

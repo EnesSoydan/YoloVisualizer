@@ -1,0 +1,43 @@
+---
+title: Efficient Computation of Depthwise Separable Convolution in MoblieNet ...
+url: https://ieeexplore.ieee.org/document/9602973
+topic: cv_fundamentals
+source_type: web
+fetched_at: 2026-04-05T12:01:38.433208+00:00
+word_count: 124
+---
+
+### IEEE Account
+
+- Change Username/Password
+- Update Address
+
+### Purchase Details
+
+- Payment Options
+- Order History
+- View Purchased Documents
+
+### Profile Information
+
+- Communications Preferences
+- Profession and Education
+- Technical Interests
+
+### Need Help?
+
+- **US & Canada:** +1 800 678 4333
+- **Worldwide:**  +1 732 981 0060
+- Contact & Support
+
+- About IEEE *Xplore*
+- Contact Us
+- Help
+- Accessibility
+- Terms of Use
+- Nondiscrimination Policy
+- Sitemap
+- Privacy & Opting Out of Cookies
+
+A not-for-profit organization, IEEE is the world's largest technical professional organization dedicated to advancing technology for the benefit of humanity.  
+© Copyright 2026 IEEE - All rights reserved. Use of this web site signifies your agreement to the terms and conditions.

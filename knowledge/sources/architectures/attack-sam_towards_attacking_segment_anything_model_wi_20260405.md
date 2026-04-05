@@ -1,0 +1,19 @@
+---
+title: Attack-SAM: Towards Attacking Segment Anything Model With Adversarial Examples
+url: http://arxiv.org/abs/2305.00866v2
+topic: architectures
+source_type: arxiv
+fetched_at: 2026-04-05T12:00:22.505882+00:00
+word_count: 214
+---
+
+# Attack-SAM: Towards Attacking Segment Anything Model With Adversarial Examples
+
+**Authors:** Chenshuang Zhang, Chaoning Zhang, Taegoo Kang, Donghun Kim, Sung-Ho Bae, In So Kweon
+**Published:** 2023-05-01
+**arXiv ID:** http://arxiv.org/abs/2305.00866v2
+**Categories:** cs.CV, cs.AI
+
+## Abstract
+
+Segment Anything Model (SAM) has attracted significant attention recently, due to its impressive performance on various downstream tasks in a zero-short manner. Computer vision (CV) area might follow the natural language processing (NLP) area to embark on a path from task-specific vision models toward foundation models. However, deep vision models are widely recognized as vulnerable to adversarial examples, which fool the model to make wrong predictions with imperceptible perturbation. Such vulnerability to adversarial attacks causes serious concerns when applying deep models to security-sensitive applications. Therefore, it is critical to know whether the vision foundation model SAM can also be fooled by adversarial attacks. To the best of our knowledge, our work is the first of its kind to conduct a comprehensive investigation on how to attack SAM with adversarial examples. With the basic attack goal set to mask removal, we investigate the adversarial robustness of SAM in the full white-box setting and transfer-based black-box settings. Beyond the basic goal of mask removal, we further investigate and find that it is possible to generate any desired mask by the adversarial attack.

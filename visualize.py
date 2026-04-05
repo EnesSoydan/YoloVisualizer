@@ -10,7 +10,9 @@ Kullanim:
     python visualize.py --filters          # Sadece filtreler
     python visualize.py --tsne             # Sadece t-SNE
     python visualize.py --image YOLO.jpg   # Belirli bir gorsel icin
-    python visualize.py --coach            # AI egitim kocu (interaktif)
+    python visualize.py --agent            # AI uzman agent (yerel, RAG destekli)
+    python visualize.py --heatmap          # Tespit bazli Grad-CAM heatmap
+      --model MODEL  --data DATA.yaml     # Ozel model/dataset ile
 
 Ciktilar outputs/ klasorune kaydedilir.
 """
@@ -36,29 +38,27 @@ def main():
                         help="Konvolusyon filtre gorsellestiremesi")
     parser.add_argument("--tsne", action="store_true",
                         help="t-SNE embedding gorsellestiremesi")
-    parser.add_argument("--coach", action="store_true",
-                        help="AI egitim kocu - Claude API (ucretli)")
-    parser.add_argument("--coach-local", action="store_true",
-                        help="Yerel uzman sistem (ucretsiz, API gerektirmez)")
+    parser.add_argument("--agent", action="store_true",
+                        help="AI uzman agent - yerel, akilli, RAG destekli")
+    parser.add_argument("--heatmap", action="store_true",
+                        help="Tespit bazli Grad-CAM heatmap raporu")
+    parser.add_argument("--model", type=str,
+                        help="Ozel model yolu (config.py yerine)")
+    parser.add_argument("--data", type=str,
+                        help="data.yaml yolu (sinif isimleri + gorsel dizini)")
     args = parser.parse_args()
 
-    # Coach modlari ayri calisir
-    if args.coach:
+    # Agent modu
+    if args.agent:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import config
-        from core.ai_coach import run_coach
-        run_coach(config)
-        return
-
-    if args.coach_local:
-        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-        import config
-        from core.expert_system import run_local_coach
-        run_local_coach(config)
+        from core.agent import run_agent
+        run_agent(config)
         return
 
     run_all = not any([
-        args.feature_maps, args.gradcam, args.filters, args.tsne
+        args.feature_maps, args.gradcam, args.filters, args.tsne,
+        args.heatmap
     ])
 
     # Config'i import et
@@ -67,6 +67,26 @@ def main():
         MODEL_PATH, TRAIN_IMAGES, DATASET_PATH,
         OUTPUT_DIR, CLASS_NAMES, IMGSZ, TSNE_NUM_IMAGES
     )
+
+    # --model / --data override
+    if args.data:
+        import yaml
+        if not os.path.exists(args.data):
+            print(f"HATA: data.yaml bulunamadi: {args.data}")
+            sys.exit(1)
+        with open(args.data, 'r', encoding='utf-8') as f:
+            data_cfg = yaml.safe_load(f)
+        names = data_cfg['names']
+        if isinstance(names, dict):
+            CLASS_NAMES = {int(k): str(v) for k, v in names.items()}
+        else:
+            CLASS_NAMES = {i: str(name) for i, name in enumerate(names)}
+        data_dir = os.path.dirname(os.path.abspath(args.data))
+        img_subdir = data_cfg.get('val', data_cfg.get('train', 'images'))
+        TRAIN_IMAGES = os.path.normpath(os.path.join(data_dir, img_subdir))
+
+    if args.model:
+        MODEL_PATH = args.model
 
     # Yollari dogrula
     if not os.path.exists(MODEL_PATH):
@@ -135,6 +155,15 @@ def main():
         visualize_tsne(
             MODEL_PATH, TRAIN_IMAGES, DATASET_PATH, OUTPUT_DIR,
             CLASS_NAMES, num_images=TSNE_NUM_IMAGES
+        )
+
+    # 5. Tespit Bazli Grad-CAM Heatmap
+    if args.heatmap:
+        print("\n[5] Tespit Bazli Grad-CAM Heatmap")
+        print("  Her tespit icin modelin neye baktigini gosterir.")
+        from core.detection_heatmap import visualize_detection_heatmap
+        visualize_detection_heatmap(
+            MODEL_PATH, image_path, OUTPUT_DIR, CLASS_NAMES, IMGSZ
         )
 
     elapsed = time.time() - t0
