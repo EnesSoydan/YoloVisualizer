@@ -37,3 +37,6 @@ Thumbs.db
 
 # Pipeline durum dosyasi
 knowledge/.pipeline_state.json
+
+# Test scriptleri
+knowledge/test_*.py

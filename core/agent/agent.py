@@ -8,6 +8,10 @@ interaktif CV uzman agent.
 import os
 import json
 
+# Model zaten indirilmisse HuggingFace'e baglanti gerektirme
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 from .llm_backend import LLMBackend
 from .rag_engine import RAGEngine
 from .data_analyzer import DataAnalyzer
@@ -162,7 +166,7 @@ class CVAgent:
 
     def ask(self, question):
         """Serbest soru sor (RAG destekli)."""
-        rag_context = self.rag.get_context(question)
+        rag_context = self.rag.get_context(question, top_k=6)
 
         prompt = TEACHING_TEMPLATE.format(
             question=question,
@@ -297,19 +301,25 @@ def run_agent(config_module):
 
         if choice == "1":
             print("\nDataset analiz ediliyor...\n")
-            agent.analyze_dataset()
+            result = agent.analyze_dataset()
+            if result and not result.startswith("\n"):
+                print(result)
 
         elif choice == "2":
             csv_path = input(
                 "results.csv yolu (veya Enter ile otomatik bul): "
-            ).strip()
+            ).strip().strip('"').strip("'")
             if not csv_path:
                 csv_path = None
-            agent.analyze_training(csv_path)
+            result = agent.analyze_training(csv_path)
+            if result and not result.startswith("\n"):
+                print(result)
 
         elif choice == "3":
             print("\nModel analiz ediliyor...\n")
-            agent.analyze_model()
+            result = agent.analyze_model()
+            if result and not result.startswith("\n"):
+                print(result)
 
         elif choice == "4":
             question = input("\nSorun: ").strip()

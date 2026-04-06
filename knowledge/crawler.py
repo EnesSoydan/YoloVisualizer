@@ -18,6 +18,7 @@ import urllib.robotparser
 
 
 # --- Sabitler ---
+EARLIEST_YEAR = 2022        # Bu yildan eski icerik alinmaz
 RATE_LIMIT_SECONDS = 1.5
 DDG_RATE_LIMIT_SECONDS = 2.0   # DDG arama cagrisi oncesi ek bekleme
 ARXIV_MAX_RESULTS = 3
@@ -39,6 +40,18 @@ HEADERS = {
 # --- Arama sorgu listesi: (sorgu, kaynak_tipi) ---
 # kaynak_tipi: "both" = DDG + arXiv, "web" = sadece DDG, "arxiv" = sadece arXiv
 SEARCH_QUERIES: Dict[str, List[Tuple[str, str]]] = {
+    "yolo_docs": [
+        ("YOLOv8 segmentation polygon format dataset training", "both"),
+        ("YOLO bbox vs segmentation annotation format difference", "web"),
+        ("Ultralytics YOLO model task selection detection segmentation", "web"),
+        ("YOLOv8 instance segmentation training tutorial guide", "both"),
+        ("YOLOv11 segmentation model training inference", "both"),
+        ("YOLO OBB oriented bounding box training aerial", "both"),
+        ("YOLOv8 export TensorRT ONNX deployment", "web"),
+        ("YOLO transfer learning fine-tuning custom dataset", "web"),
+        ("YOLOv8 vs YOLOv9 vs YOLOv10 vs YOLOv11 comparison", "both"),
+        ("YOLO pose estimation keypoint detection training", "both"),
+    ],
     "architectures": [
         ("DETR transformer object detection end-to-end", "both"),
         ("Faster RCNN region proposal network architecture", "both"),
@@ -123,14 +136,14 @@ class WebCrawler:
 
         try:
             with DDGS() as ddgs:
-                hits = list(ddgs.text(query, max_results=max_results))
+                hits = list(ddgs.text(query, max_results=max_results, timelimit='y'))
         except Exception as exc:
             # Rate limit veya baska DDG hatasi
             print(f"  [Crawler] DDG arama hatasi ({query[:40]}): {exc}")
             time.sleep(30)
             try:
                 with DDGS() as ddgs:
-                    hits = list(ddgs.text(query, max_results=max_results))
+                    hits = list(ddgs.text(query, max_results=max_results, timelimit='y'))
             except Exception:
                 return results
 
@@ -167,7 +180,7 @@ class WebCrawler:
             search = arxiv.Search(
                 query=cs_query,
                 max_results=max_results,
-                sort_by=arxiv.SortCriterion.Relevance,
+                sort_by=arxiv.SortCriterion.SubmittedDate,  # En yeni once
             )
             papers = list(search.results())
         except Exception as exc:
@@ -177,6 +190,9 @@ class WebCrawler:
         for paper in papers:
             # cs.* kategorisi olmayan paper'lari atla (astronomi, fizik vs.)
             if not any(cat.startswith("cs.") for cat in paper.categories):
+                continue
+            # Eski paper'lari atla
+            if paper.published and paper.published.year < EARLIEST_YEAR:
                 continue
             try:
                 authors = ", ".join(a.name for a in paper.authors[:6])

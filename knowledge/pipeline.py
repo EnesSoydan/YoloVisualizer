@@ -26,6 +26,10 @@ from typing import Dict, Set
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _PROJECT_ROOT)
 
+# Model zaten indirilmisse HuggingFace'e baglanti gerektirme
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 
 @dataclass
 class PipelineState:
@@ -43,6 +47,7 @@ class PipelineState:
 
 # Klasor adi → ChromaDB topic degeri eslesmesi
 _TOPIC_META = {
+    "yolo_docs": "yolo",
     "architectures": "architecture",
     "cv_fundamentals": "fundamentals",
     "training_guide": "training",

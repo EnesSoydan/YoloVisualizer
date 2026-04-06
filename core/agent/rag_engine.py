@@ -23,6 +23,10 @@ class RAGEngine:
         """Embedding modelini yukle (lazy)."""
         if self._embed_model is None:
             try:
+                import os
+                # Model zaten indirilmisse HuggingFace'e baglanti gerektirme
+                os.environ.setdefault("HF_HUB_OFFLINE", "1")
+                os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
                 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
                 self._embed_model = HuggingFaceEmbedding(
                     model_name=self.embedding_model_name
@@ -191,17 +195,60 @@ class RAGEngine:
         except Exception:
             return None
 
+    # YOLO konularini iceren sorgularda topic filtresini devreye sokmak icin
+    _YOLO_KEYWORDS = {
+        "yolo", "ultralytics", "bbox", "bounding box", "polygon", "segmentation",
+        "seg", "detection", "etiket", "annotation", "format", "label", "obb",
+        "pose", "keypoint", "inference", "model", "weights", "pt", "train",
+        "dataset", "class", "sinif", "maske", "mask",
+    }
+
     def get_context(self, question, top_k=4):
-        """Soruyla ilgili bilgi tabanindan baglam metni dondur."""
+        """Soruyla ilgili bilgi tabanindan baglam metni dondur.
+
+        Iki gecis:
+        1. Genel semantik arama (top_k)
+        2. YOLO sorusuysa topic='yolo' filtreli ek arama (her zaman dahil)
+        """
         index = self._load_or_build_index()
         if index is None:
             return ""
 
+        # --- Gecis 1: Genel semantik arama ---
         retriever = index.as_retriever(similarity_top_k=top_k)
         try:
-            nodes = retriever.retrieve(question)
+            nodes = list(retriever.retrieve(question))
         except Exception:
-            return ""
+            nodes = []
+
+        # --- Gecis 2: YOLO sorularinda topic filtreli boost ---
+        question_lower = question.lower()
+        is_yolo_question = any(kw in question_lower for kw in self._YOLO_KEYWORDS)
+
+        if is_yolo_question:
+            try:
+                from llama_index.core.vector_stores import (
+                    MetadataFilter, MetadataFilters, FilterOperator
+                )
+                filters = MetadataFilters(filters=[
+                    MetadataFilter(key="topic", value="yolo",
+                                   operator=FilterOperator.EQ)
+                ])
+                yolo_retriever = index.as_retriever(
+                    similarity_top_k=4,
+                    filters=filters,
+                )
+                yolo_nodes = yolo_retriever.retrieve(question)
+
+                # Tekrarlari atlayarak birlestir
+                seen = {n.node.get_content()[:80] for n in nodes}
+                for n in yolo_nodes:
+                    preview = n.node.get_content()[:80]
+                    if preview not in seen:
+                        nodes.append(n)
+                        seen.add(preview)
+            except Exception:
+                pass  # Filtre desteklenmiyorsa sessizce atla
 
         if not nodes:
             return ""

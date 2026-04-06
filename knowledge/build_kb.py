@@ -14,6 +14,10 @@ import sys
 import argparse
 import time
 
+# Model zaten indirilmisse HuggingFace'e baglanti gerektirme
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 # Proje kokunu Python path'ine ekle
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)

@@ -1,5 +1,9 @@
 import os
 
+# HuggingFace modeller zaten indirildi — her baslatmada internet kontrolu yapma
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 # Desktop path (Turkish Windows uyumlu)
 # Windows'ta "Desktop" symlink olabilir ama icerik farkli olabilir.
 # Gercek Masaustu klasorunu bul.
